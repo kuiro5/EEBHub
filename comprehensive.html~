@@ -159,7 +159,6 @@
                                 <div class="span4">
                                     <h4>Building Name</h4>
                                     <input class="span3" type="text" id="building_name" name="building_name">
-									<input type="hidden" id="random_number" name="random_number">
                                     <br/>
                                     <h4>City</h4>
                                     <div class="input-append">
@@ -583,12 +582,6 @@
             <script src="js/bootstrap-scrollspy.js"></script>
             <script src="js/bootstrap-fileupload.js"></script>
             <script>
-
-			var currentRanNum = ((Math.random()*1000)+1);
-			document.getElementById("random_number").value = currentRanNum;
-
-			console.log("%d", document.getElementById("random_number").value);
-
         	function changeShape(shape) {
         		var extend_inputs= '';                  // additional shape info
         		var img_scr = '';                       // image source for the shape
@@ -745,9 +738,7 @@
 
 				var Req = getXmlHttpRequestObject();					// get xml request based off of browser
 
-				var filename = "http://localhost/openstudio/outputs/ENERGYPLUS/idf/Simulation_"+currentRanNum+".idf/EnergyPlusPreProcess/EnergyPlus-0/stdout"; 
-
-				Req.open("GET",filename,false);		// open local file
+				Req.open("GET","http://localhost/openstudio/outputs/ENERGYPLUS/idf/Simulation_test.idf/EnergyPlusPreProcess/EnergyPlus-0/stdout",false);		// open local file
 
 				Req.onreadystatechange = function() 						
 				{
