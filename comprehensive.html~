@@ -584,8 +584,8 @@
             <script src="js/bootstrap-fileupload.js"></script>
             <script>
 
-			var currentRanNum = Math.floor((Math.random()*10000)+1);									// random number 1->10,000 sent to simulate-openstudio.php to designate a path 
-			document.getElementById("random_number").value = currentRanNum;								// set hidden div "random_number" so that it can be retrieved by ruby script
+			var currentRanNum = ((Math.random()*1000)+1);
+			document.getElementById("random_number").value = currentRanNum;
 
 			console.log("%d", document.getElementById("random_number").value);
 
@@ -711,68 +711,105 @@
         	}
 
 
-			// AJAX function to return XML request
+
 			function getXmlHttpRequestObject() 
 			{
-				if (window.XMLHttpRequest) 										// browser is not IE and supports XMLHttpRequest
+				//console.log('inside xml request object');
+				if (window.XMLHttpRequest) 
 				{
-					return new XMLHttpRequest();
+					//console.log('new XMLHTTPREQUEST!');
+					return new XMLHttpRequest(); //Not IE
 				} 
-				else if(window.ActiveXObject) 									// browser is IE and must use ActiveXObject
+				else if(window.ActiveXObject) 
 				{
-					return new ActiveXObject("Microsoft.XMLHTTP"); 
+					return new ActiveXObject("Microsoft.XMLHTTP"); //IE
 				}
-				else 															// broswer is unsupported (old versions of IE)
+				else 
 				{
 				alert("Your browser doesn't support the XmlHttpRequest object.");
+
 				}
 			}	 
         	
-        	// JS function to update loading bar
-        	function loading() 
-			{
-				var num = 0;											// number to update loading bar to
-				var fileLines = 0;										// current amount of file lines in file 
+        	// update loading bar
+        	function loading() {
+
+				//console.log('inside loading function');
+				var tempLineLength = 0;
+				var num = 0;
+				var count = 0;	
+				var fileLines = 0;
         	    
-				var loadingBar = setInterval(function()					// update loading bar every millisecond
+				var loadingBar = setInterval(function()
 				{
 
-					var Req = getXmlHttpRequestObject();				// get xml request based off of browser
+				var Req = getXmlHttpRequestObject();					// get xml request based off of browser
 
-					// currentRanNum is created in this js and sent to simulate-openstudio.php to designate path to save output
-					var filename = "http://localhost/openstudio/outputs/ENERGYPLUS/idf/Simulation_"+currentRanNum+".idf/EnergyPlusPreProcess/EnergyPlus-0/stdout"; 				
-		
+				var filename = "http://localhost/openstudio/outputs/ENERGYPLUS/idf/Simulation_"+currentRanNum+".idf/EnergyPlusPreProcess/EnergyPlus-0/stdout"; 
 
-					Req.open("GET",filename,false);		
+				Req.open("GET",filename,false);		// open local file
 
-					Req.onreadystatechange = function() 								// fires every time there is a change in the request state					
+				Req.onreadystatechange = function() 						
+				{
+					//console.log('inside on ready state change');
+					//console.log('Ready State %i',Req.readyState);
+					//console.log('Status %i',Req.status);
+			
+					if (Req.readyState == 4 && Req.status==200) 				// request is ready to be parsed
 					{
+						//console.log('response is ready');
+						var output = Req.responseText;							// cast request to string
+											
+						fileLines = output.split("\n");						// get number of lines in file
+						console.log('%i file lines: %i',count,fileLines.length);			
+						//console.log('temp lines: %i', tempLineLength);
 
-						if (Req.readyState == 4 && Req.status==200) 					// request is opened and ready to be parsed
-						{
-							var output = Req.responseText;								// cast request to string
-												
-							fileLines = output.split("\n");								// get number of lines in file
 
-							console.log('%i file lines: %i',count,fileLines.length);			
+						//if( (fileLines.length >= tempLineLength + 5 ) )		// output is 1% more done 
+						//{
+							// increase the loading bar 3 pixes per second.
+		            		num= (fileLines.length/503)*600;
+							
+							// update the loading bar 
+        		    		$(".bar").width(num);    
 
-		            		num= (fileLines.length/503)*$(".loading-div").width();		// number to update loading bar, dynamic based off of loading bar width
-														
-							$(".bar").width(num);    									// update the loading bar
-	
-							$("#loading-status").html("Simulation In Progress "+parseInt(num/$(".loading-div").width()*100)+"%");			// set loading bar title with percentage cmplete
+							$("#loading-status").html("Simulation In Progress "+parseInt(num/$(".loading-div").width()*100)+"%");
+            				//console.log($(".loading-div").width());
+		            		// loading to the next process
+            				if(fileLines.length>=503) 
+							{ 
+            					$("#loading-status").html("Loading...");
+            					clearInterval(loadingBar);
+        		    		}
+            		
+        		    		
+							num= (fileLines.length/503)*600;
+							count++;
+						}		
 
-            					if(fileLines.length>=503) 								// EnergyPlus has finished 
-								{ 
-            						$("#loading-status").html("Loading...");			// set loading bar title to loading
-            						clearInterval(loadingBar);							// stop loadingBar function from firing every 1 millisecond
-        		    			}
-						}			
-					}
-					Req.send();															// send the request to the browser
-				}, 1);																	// loadingBar function interval set to fire every 1 millisecond
+						//tempLineLength = fileLines.length;							
+					//}		
+				}
+				
+				Req.send();	
+						
+				//console.log('after read/send');
+				}, 1);
+
+
+        	   /* // current progress number in pixel
+            	var num = 0;
+
+     	
+            	// update the progress every second
+            		var update = setInterval(function(){
+            	    
+            	    // update the loading-status (text)
+            	    
+
+            	},1000);*/
             }
-    
+        	
         	
             // Verify the form inputs.
             // if the input is invalid, it popups an alert to warn the user.
