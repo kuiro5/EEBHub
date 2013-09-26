@@ -734,7 +734,7 @@
 				var num = 0;											// number to update loading bar to
 				var fileLines = 0;										// current amount of file lines in file 
 				var maxFileLines = 503;									// maximum amount of lines written to stdout
-				var percentage = 100;									// multiplie to obtain percentage
+				var percentage = 100;									// multiplier to obtain percentage
         	    
 				var loadingBar = setInterval(function()					// update loading bar every millisecond
 				{
@@ -758,7 +758,11 @@
 
 							console.log('File lines: %i',fileLines.length);			
 
-		            		num= (fileLines.length/maxFileLines)*$(".loading-div").width();		// number to update loading bar, dynamic based off of loading bar width
+		            		
+
+							
+
+							num= (fileLines.length/maxFileLines)*$(".loading-div").width();		// number to update loading bar, dynamic based off of loading bar width
 														
 							$(".bar").width(num);    									// update the loading bar
 	
